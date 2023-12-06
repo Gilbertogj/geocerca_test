@@ -10,6 +10,7 @@
 <body>
   <h1>Prueba de Geocerca Concreco</h1>
   <h1 id="geofenceStatus">Localizando...</h1>
+  
 
   <script>
     function requestGeolocationPermission() {
@@ -52,13 +53,16 @@
     function onLocationSuccess(position) {
       const geofenceLat = 21.146060310273377;
       const geofenceLng = -101.62860968948392;
-      const geofenceRadius = 1000;
+      const geofenceRadius = 1100;
 
       const distance = calculateDistance(position.coords.latitude, position.coords.longitude, geofenceLat, geofenceLng);
       const geofenceStatusElement = document.getElementById("geofenceStatus");
 
       if (distance <= geofenceRadius) {
-        geofenceStatusElement.textContent = "Estás dentro de la geocerca.";
+        // Estás dentro de la geocerca
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}`;
+        geofenceStatusElement.textContent = `Estás dentro de la geocerca. HORA DE ENTRADA A LA GEOCERCA iNBLOCK= ${formattedDate}`;
       } else {
         geofenceStatusElement.textContent = "Estás fuera de la geocerca.";
       }
