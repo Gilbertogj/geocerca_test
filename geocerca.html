@@ -52,7 +52,7 @@
     function onLocationSuccess(position) {
       const geofenceLat = 21.146060310273377;
       const geofenceLng = -101.62860968948392;
-      const geofenceRadius = 2000;
+      const geofenceRadius = 1000;
 
       const distance = calculateDistance(position.coords.latitude, position.coords.longitude, geofenceLat, geofenceLng);
       const geofenceStatusElement = document.getElementById("geofenceStatus");
