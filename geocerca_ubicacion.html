@@ -1,105 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Geocerca en JavaScript</title>
-</head>
-
-<body>
-  <h1>Prueba de Geocerca Concreco</h1>
-  <h1 id="geofenceStatus">Localizando...</h1>
-  
-
-  <script>
-    function requestGeolocationPermission() {
-      if ("geolocation" in navigator) {
-        navigator.permissions.query({ name: 'geolocation' })
-          .then(permissionStatus => {
-            if (permissionStatus.state === 'granted') {
-              getCurrentLocation();
-            } else if (permissionStatus.state === 'prompt') {
-              showPermissionRequest();
-            } else {
-              showPermissionDenied();
-            }
-          })
-          .catch(error => {
-            console.error("Error al verificar el permiso de geolocalización:", error.message);
-          });
-      } else {
-        alert("La geolocalización no está disponible en este navegador.");
-      }
-    }
-
-    function showPermissionRequest() {
-      const userResponse = confirm("Este sitio web solicitará permisos para acceder a tu ubicación. ¿Quieres permitirlo?");
-      if (userResponse) {
-        getCurrentLocation();
-      } else {
-        showPermissionDenied();
-      }
-    }
-
-    function showPermissionDenied() {
-      alert("Permiso de geolocalización denegado. Algunas funciones pueden no estar disponibles.");
-    }
-
-    function getCurrentLocation() {
-      navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError);
-    }
-
-    function onLocationSuccess(position) {
-      const geofenceLat = 21.146060310273377;
-      const geofenceLng = -101.62860968948392;
-      const geofenceRadius = 1100;
-
-      const distance = calculateDistance(position.coords.latitude, position.coords.longitude, geofenceLat, geofenceLng);
-      const geofenceStatusElement = document.getElementById("geofenceStatus");
-
-      if (distance <= geofenceRadius) {
-        // Estás dentro de la geocerca
-        const currentDate = new Date();
-        const formattedDate = `${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}`;
-        geofenceStatusElement.textContent = `Estás dentro de la geocerca. HORA DE ENTRADA A LA GEOCERCA iNBLOCK= ${formattedDate}`;
-      } else {
-        geofenceStatusElement.textContent = "Estás fuera de la geocerca.";
-      }
-    }
-
-    function onLocationError(error) {
-      console.error("Error al obtener la posición:", error.message);
-      showPermissionDenied();
-    }
-
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371e3;
-      const φ1 = toRadians(lat1);
-      const φ2 = toRadians(lat2);
-      const Δφ = toRadians(lat2 - lat1);
-      const Δλ = toRadians(lon2 - lon1);
-
-      const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-        Math.cos(φ1) * Math.cos(φ2) *
-        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-      return R * c;
-    }
-
-    function toRadians(degrees) {
-      return degrees * Math.PI / 180;
-    }
-
-    // Solicitar permisos al cargar la página
-    requestGeolocationPermission();
-  </script>
-</body>
-
-</html> -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -107,16 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Geocerca en JavaScript</title>
-  <!-- Incluir Leaflet CSS y JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 
 <body>
   <h1>Prueba de Geocerca Concreco</h1>
-
-  <!-- Mapa para elegir la ubicación -->
-  <div id="map" style="height: 300px;"></div>
 
   <!-- Formulario para ingresar las coordenadas de la geocerca -->
   <form id="geofenceForm">
@@ -135,21 +27,6 @@
     let geofenceLat = 0;
     let geofenceLng = 0;
     const geofenceRadius = 1100;
-
-    // Inicializar el mapa
-    const map = L.map('map').setView([0, 0], 13);
-
-    // Añadir un mapa base
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    // Manejar clics en el mapa para obtener coordenadas
-    map.on('click', function (e) {
-      const latitudeInput = document.getElementById("latitude");
-      const longitudeInput = document.getElementById("longitude");
-
-      latitudeInput.value = e.latlng.lat.toFixed(6);
-      longitudeInput.value = e.latlng.lng.toFixed(6);
-    });
 
     function requestGeolocationPermission() {
       if ("geolocation" in navigator) {
