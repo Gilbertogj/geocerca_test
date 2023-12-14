@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,16 +5,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Geocerca en JavaScript</title>
-  <!-- Incluir Leaflet CSS y JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Incluir Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADAJWSaibbmdeDcVeLtFacprQ0VGSE0Io&libraries=places"></script>
+  <style>
+    /* Ajusta el tamaño del mapa */
+    #map {
+      height: 300px;
+    }
+
+    /* Estilo para el campo de búsqueda */
+    #pac-input {
+      width: 300px;
+      margin: 10px;
+    }
+  </style>
 </head>
 
 <body>
   <h1>Prueba de Geocerca Concreco</h1>
 
+  <!-- Campo de búsqueda de direcciones -->
+  <input id="pac-input" type="text" placeholder="Buscar dirección">
+
   <!-- Mapa para elegir la ubicación -->
-  <div id="map" style="height: 300px;"></div>
+  <div id="map"></div>
 
   <!-- Formulario para ingresar las coordenadas de la geocerca -->
   <form id="geofenceForm">
@@ -26,6 +39,9 @@
     <input type="text" id="longitude" placeholder="Ingrese la longitud" required>
 
     <button type="button" onclick="checkGeofence()">Verificar Geocerca</button>
+
+    <!-- Botón para centrar el mapa en la ubicación buscada -->
+    <button type="button" onclick="goToLocation()">Ir a la ubicación</button>
   </form>
 
   <h1 id="geofenceStatus">Localizando...</h1>
@@ -36,22 +52,70 @@
     const geofenceRadius = 110;
 
     // Inicializar el mapa
-    const map = L.map('map').setView([0, 0], 13);
+    const map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 13
+    });
 
-    // Añadir un mapa base
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    // Obtener la ubicación actual del usuario y centrar el mapa en esa ubicación
+    function initializeMapWithUserLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+          const userLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+          map.setCenter(userLatLng);
+          placeMarker(userLatLng);
+        }, function () {
+          // En caso de error al obtener la ubicación del usuario, se usa una ubicación predeterminada (lat: 0, lng: 0)
+          map.setCenter({ lat: 0, lng: 0 });
+        });
+      } else {
+        // Si la geolocalización no está disponible, se usa una ubicación predeterminada (lat: 0, lng: 0)
+        map.setCenter({ lat: 0, lng: 0 });
+      }
+    }
 
-    // Manejar clics en el mapa para obtener coordenadas
-    map.on('click', function (e) {
+    // Llamar a la función para inicializar el mapa con la ubicación actual del usuario
+    initializeMapWithUserLocation();
+
+    // Añadir un manejador de clics al mapa para obtener coordenadas
+    map.addListener('click', function (event) {
       const latitudeInput = document.getElementById("latitude");
       const longitudeInput = document.getElementById("longitude");
 
-      latitudeInput.value = e.latlng.lat.toFixed(6);
-      longitudeInput.value = e.latlng.lng.toFixed(6);
+      latitudeInput.value = event.latLng.lat().toFixed(6);
+      longitudeInput.value = event.latLng.lng().toFixed(6);
+    });
+
+    // Agregar campo de búsqueda de direcciones
+    const input = document.getElementById('pac-input');
+    const searchBox = new google.maps.places.SearchBox(input);
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+    // Escuchar cambios en el campo de búsqueda
+    map.addListener('bounds_changed', function () {
+      searchBox.setBounds(map.getBounds());
+    });
+
+    // Escuchar selecciones del campo de búsqueda
+    searchBox.addListener('places_changed', function () {
+      const places = searchBox.getPlaces();
+
+      if (places.length === 0) {
+        return;
+      }
+
+      const place = places[0];
+      const latitudeInput = document.getElementById("latitude");
+      const longitudeInput = document.getElementById("longitude");
+
+      latitudeInput.value = place.geometry.location.lat().toFixed(6);
+      longitudeInput.value = place.geometry.location.lng().toFixed(6);
+
+      // Centrar el mapa en la ubicación buscada
+      goToLocation();
     });
 
     function requestGeolocationPermission() {
-      if ("geolocation" in navigator) {
+      if (navigator.geolocation) {
         navigator.permissions.query({ name: 'geolocation' })
           .then(permissionStatus => {
             if (permissionStatus.state === 'granted') {
@@ -143,6 +207,49 @@
         requestGeolocationPermission();
       }
     }
+
+    function goToLocation() {
+      const latitudeInput = document.getElementById("latitude");
+      const longitudeInput = document.getElementById("longitude");
+
+      const inputLat = parseFloat(latitudeInput.value);
+      const inputLng = parseFloat(longitudeInput.value);
+
+      if (isNaN(inputLat) || isNaN(inputLng)) {
+        alert("Por favor, ingrese coordenadas válidas.");
+      } else {
+        // Centrar el mapa en la ubicación buscada con un marcador (pin)
+        map.panTo(new google.maps.LatLng(inputLat, inputLng));
+        placeMarker(new google.maps.LatLng(inputLat, inputLng));
+      }
+    }
+
+    function placeMarker(location) {
+      // Eliminar marcadores anteriores
+      clearMarkers();
+
+      // Crear un marcador en la ubicación deseada
+      const marker = new google.maps.Marker({
+        position: location,
+        map: map
+      });
+
+      // Añadir el marcador al arreglo de marcadores
+      markers.push(marker);
+    }
+
+    function clearMarkers() {
+      // Limpiar todos los marcadores del mapa
+      for (let i = 0; i < markers.length; i++) {
+        markers[i].setMap(null);
+      }
+
+      // Limpiar el arreglo de marcadores
+      markers = [];
+    }
+
+    // Arreglo para almacenar los marcadores
+    let markers = [];
 
     // Solicitar permisos al cargar la página
     requestGeolocationPermission();

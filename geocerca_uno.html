@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -9,25 +9,10 @@
 
 <body>
   <h1>Prueba de Geocerca Concreco</h1>
-
-  <!-- Formulario para ingresar las coordenadas de la geocerca -->
-  <form id="geofenceForm">
-    <label for="latitude">Latitud:</label>
-    <input type="text" id="latitude" placeholder="Ingrese la latitud" required>
-
-    <label for="longitude">Longitud:</label>
-    <input type="text" id="longitude" placeholder="Ingrese la longitud" required>
-
-    <button type="button" onclick="checkGeofence()">Verificar Geocerca</button>
-  </form>
-
   <h1 id="geofenceStatus">Localizando...</h1>
+  
 
   <script>
-    let geofenceLat = 0;
-    let geofenceLng = 0;
-    const geofenceRadius = 110;
-
     function requestGeolocationPermission() {
       if ("geolocation" in navigator) {
         navigator.permissions.query({ name: 'geolocation' })
@@ -66,9 +51,12 @@
     }
 
     function onLocationSuccess(position) {
-      const geofenceStatusElement = document.getElementById("geofenceStatus");
+      const geofenceLat = 21.146060310273377;
+      const geofenceLng = -101.62860968948392;
+      const geofenceRadius = 1100;
 
       const distance = calculateDistance(position.coords.latitude, position.coords.longitude, geofenceLat, geofenceLng);
+      const geofenceStatusElement = document.getElementById("geofenceStatus");
 
       if (distance <= geofenceRadius) {
         // Estás dentro de la geocerca
@@ -105,26 +93,9 @@
       return degrees * Math.PI / 180;
     }
 
-    function checkGeofence() {
-      const latitudeInput = document.getElementById("latitude");
-      const longitudeInput = document.getElementById("longitude");
-
-      const inputLat = parseFloat(latitudeInput.value);
-      const inputLng = parseFloat(longitudeInput.value);
-
-      if (isNaN(inputLat) || isNaN(inputLng)) {
-        alert("Por favor, ingrese coordenadas válidas.");
-      } else {
-        // Actualizar las coordenadas de la geocerca y solicitar permisos de geolocalización
-        geofenceLat = inputLat;
-        geofenceLng = inputLng;
-        requestGeolocationPermission();
-      }
-    }
-
     // Solicitar permisos al cargar la página
     requestGeolocationPermission();
   </script>
 </body>
 
-</html>
+</html> -->
